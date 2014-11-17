@@ -181,7 +181,128 @@ stepsPerInterval[max(stepsPerInterval[ , 2][ , 1]), 1]
 
 ## Imputing missing values
 
-**TODO** *This part of the report needs to be completed.*
+The following R code shows how many missing ("NA") values are in the data set
+for the *steps* data.
+
+```r
+sum(is.na(activityData$steps) == TRUE)
+```
+
+```
+## [1] 2304
+```
+
+There are a number of possible strategies for replacing the missing values in
+the data set. In the last section the average number of steps per time
+interval over all dates was calculated. The average could be used to replace the
+"NA" value in the missing time intervals. In the section prior to the last one, 
+the daily average steps were calculated. The daily average could also be
+substituted for the missing values. However, in this dataset, the activity of
+the wearer of the device is being tracked. Assuming this is for the purpose of
+improving fitness, adding average values could very well overestimate the 
+activity of the wearer, so I have decided to just replace all of the "NA"
+values with zeroes. This code creates a new data frame with all numeric values
+(no "NAs").
+
+```r
+numericActivityData <- activityData
+numericActivityData[is.na(numericActivityData)] <- 0
+head(numericActivityData)
+```
+
+```
+##   steps       date interval            datetime
+## 1     0 2012-10-01        0 2012-10-01 00:00:00
+## 2     0 2012-10-01        5 2012-10-01 00:05:00
+## 3     0 2012-10-01       10 2012-10-01 00:10:00
+## 4     0 2012-10-01       15 2012-10-01 00:15:00
+## 5     0 2012-10-01       20 2012-10-01 00:20:00
+## 6     0 2012-10-01       25 2012-10-01 00:25:00
+```
+
+Comparing the contents of this data set with the following listing of the first
+six rows of the original data set demonstrates that the NAs have been replaced
+with zeroes.
+
+```r
+head(activityData)
+```
+
+```
+##   steps       date interval            datetime
+## 1    NA 2012-10-01        0 2012-10-01 00:00:00
+## 2    NA 2012-10-01        5 2012-10-01 00:05:00
+## 3    NA 2012-10-01       10 2012-10-01 00:10:00
+## 4    NA 2012-10-01       15 2012-10-01 00:15:00
+## 5    NA 2012-10-01       20 2012-10-01 00:20:00
+## 6    NA 2012-10-01       25 2012-10-01 00:25:00
+```
+
+The following code displays the histogram of the total number of steps per day
+for this new data set.
+
+```r
+numericStepsPerDay <- aggregate(numericActivityData$steps ~ 
+                                    numericActivityData$date,
+                                numericActivityData,
+                                sum)
+hist(numericStepsPerDay[ , 2], 
+     main = "Total Steps Taken Per Day (No NAs)", 
+     xlab = "Total Steps")
+```
+
+![plot of chunk unnamed-chunk-14](./PA1_template_files/figure-html/unnamed-chunk-14.png) 
+
+Comparing this histogram to the one generated previously, it is apparent that 
+ignoring the NAs rather than replacing them with numeric values did have an 
+effect on the results. The following is the mean for the data set
+with all numeric values.
+
+
+```r
+mean(numericStepsPerDay[ , 2])
+```
+
+```
+## [1] 9354
+```
+
+And the following code calculates the median for this new data set.
+
+```r
+median(numericStepsPerDay[ , 2])
+```
+
+```
+## [1] 10395
+```
+
+The difference between the original data set and this data set with all 
+numeric values can be quantified by taking the difference between the means.
+
+
+```r
+abs(mean(numericStepsPerDay[ , 2]) - mean(stepsPerDay[ , 2]))
+```
+
+```
+## [1] 1412
+```
+
+And between the medians.
+
+```r
+abs(median(numericStepsPerDay[ , 2]) - median(stepsPerDay[ , 2]))
+```
+
+```
+## [1] 370
+```
+
+This result should make it obvious that ignoring NA values does affect the
+results of calculations made using those values. It should also be apparent that 
+the strategy used to replace the NA values will impact the results, so it should
+be chosen with care.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 

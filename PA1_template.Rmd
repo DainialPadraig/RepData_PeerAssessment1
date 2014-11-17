@@ -113,7 +113,78 @@ stepsPerInterval[max(stepsPerInterval[ , 2][ , 1]), 1]
 
 ## Imputing missing values
 
-**TODO** *This part of the report needs to be completed.*
+The following R code shows how many missing ("NA") values are in the data set
+for the *steps* data.
+```{r}
+sum(is.na(activityData$steps) == TRUE)
+```
+
+There are a number of possible strategies for replacing the missing values in
+the data set. In the last section the average number of steps per time
+interval over all dates was calculated. The average could be used to replace the
+"NA" value in the missing time intervals. In the section prior to the last one, 
+the daily average steps were calculated. The daily average could also be
+substituted for the missing values. However, in this dataset, the activity of
+the wearer of the device is being tracked. Assuming this is for the purpose of
+improving fitness, adding average values could very well overestimate the 
+activity of the wearer, so I have decided to just replace all of the "NA"
+values with zeroes. This code creates a new data frame with all numeric values
+(no "NAs").
+```{r}
+numericActivityData <- activityData
+numericActivityData[is.na(numericActivityData)] <- 0
+head(numericActivityData)
+```
+
+Comparing the contents of this data set with the following listing of the first
+six rows of the original data set demonstrates that the NAs have been replaced
+with zeroes.
+```{r}
+head(activityData)
+```
+
+The following code displays the histogram of the total number of steps per day
+for this new data set.
+```{r}
+numericStepsPerDay <- aggregate(numericActivityData$steps ~ 
+                                    numericActivityData$date,
+                                numericActivityData,
+                                sum)
+hist(numericStepsPerDay[ , 2], 
+     main = "Total Steps Taken Per Day (No NAs)", 
+     xlab = "Total Steps")
+```
+
+Comparing this histogram to the one generated previously, it is apparent that 
+ignoring the NAs rather than replacing them with numeric values did have an 
+effect on the results. The following is the mean for the data set
+with all numeric values.
+
+```{r}
+mean(numericStepsPerDay[ , 2])
+```
+
+And the following code calculates the median for this new data set.
+```{r}
+median(numericStepsPerDay[ , 2])
+```
+
+The difference between the original data set and this data set with all 
+numeric values can be quantified by taking the difference between the means.
+
+```{r}
+abs(mean(numericStepsPerDay[ , 2]) - mean(stepsPerDay[ , 2]))
+```
+
+And between the medians.
+```{r}
+abs(median(numericStepsPerDay[ , 2]) - median(stepsPerDay[ , 2]))
+```
+
+This result should make it obvious that ignoring NA values does affect the
+results of calculations made using those values. It should also be apparent that 
+the strategy used to replace the NA values will impact the results, so it should
+be chosen with care.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
